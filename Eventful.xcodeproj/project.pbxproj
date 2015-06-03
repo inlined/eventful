@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E91C50351B1E857100035764 /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = E91C50341B1E857100035764 /* Observable.swift */; };
+		E91C50371B1E882500035764 /* Observable+MVVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = E91C50361B1E882500035764 /* Observable+MVVM.swift */; };
 		E9C7DD6D1B1E6686000A48A6 /* Eventful.h in Headers */ = {isa = PBXBuildFile; fileRef = E9C7DD6C1B1E6686000A48A6 /* Eventful.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E9C7DD731B1E6686000A48A6 /* Eventful.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9C7DD671B1E6686000A48A6 /* Eventful.framework */; };
 		E9C7DD851B1E66FE000A48A6 /* Lock.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C7DD831B1E66FE000A48A6 /* Lock.swift */; };
@@ -25,6 +27,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		E91C50341B1E857100035764 /* Observable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Observable.swift; sourceTree = "<group>"; };
+		E91C50361B1E882500035764 /* Observable+MVVM.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Observable+MVVM.swift"; sourceTree = "<group>"; };
 		E9C7DD671B1E6686000A48A6 /* Eventful.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Eventful.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E9C7DD6B1B1E6686000A48A6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E9C7DD6C1B1E6686000A48A6 /* Eventful.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Eventful.h; sourceTree = "<group>"; };
@@ -78,6 +82,8 @@
 				E9C7DD6C1B1E6686000A48A6 /* Eventful.h */,
 				E9C7DD831B1E66FE000A48A6 /* Lock.swift */,
 				E9C7DD841B1E66FE000A48A6 /* Promise.swift */,
+				E91C50341B1E857100035764 /* Observable.swift */,
+				E91C50361B1E882500035764 /* Observable+MVVM.swift */,
 				E9C7DD6A1B1E6686000A48A6 /* Supporting Files */,
 			);
 			path = Eventful;
@@ -216,6 +222,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				E9C7DD851B1E66FE000A48A6 /* Lock.swift in Sources */,
+				E91C50351B1E857100035764 /* Observable.swift in Sources */,
+				E91C50371B1E882500035764 /* Observable+MVVM.swift in Sources */,
 				E9C7DD861B1E66FE000A48A6 /* Promise.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
