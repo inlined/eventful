@@ -19,6 +19,8 @@ public class Observable<T> {
   private var callbacks: [(T!)->()] = []
   private var lock = Lock()
   
+  public init() {}
+  
   private func addCallback(block: (T!) ->()) {
     lock.synchronized {
       self.callbacks.append(block)
@@ -29,6 +31,7 @@ public class Observable<T> {
   // Method for sublcasses; useful for sending initial values
   func didAddObserver(block: (T!) -> ()) {}
   
+  // yield sends a value to all observers
   public func yield(value: T!) {
     lock.synchronized {
       for callback in self.callbacks {
@@ -37,9 +40,9 @@ public class Observable<T> {
     }
   }
   
-  // default transforms a Observable into one which replaces all nil values with defaultValue
-  public func defaultValue(defaultValue: T) -> Observable<T> {
-    let observable = Observable<T>()
+  // withDefault transforms a Observable into one which replaces all nil values with defaultValue
+  public func withDefault(defaultValue: T) -> Observable {
+    let observable = Observable()
     addCallback {
       if $0 == nil {
         observable.yield(defaultValue)
@@ -60,8 +63,19 @@ public class Observable<T> {
     return observable
   }
   
+  // map transforms a Observable from one type to another
+  public func map<Y>(block: (T!) -> Y?) -> Observable<Y> {
+    let observable = Observable<Y>()
+    addCallback {
+      let result = block($0)
+      observable.yield(result)
+    }
+    return observable
+  }
+  
   // then is like a delayed version of map. It transforms a Observable from
   // observed<X> to observed<y> via an asynchronous promise.
+  // TODO: This drops errors on the floor; is there a better way to do this?
   public func then<Y>(block: (T!) -> Promise<Y>) -> Observable<Y> {
     let observable = Observable<Y>()
     addCallback {
@@ -75,14 +89,14 @@ public class Observable<T> {
   // tap provides a way to observe a Observable without changing it.
   // the closure will be run for each yielded value, but tap returns
   // the original observed Observable.
-  public func tap(block: (T!) -> ()) -> Observable<T> {
+  public func tap(block: (T!) -> ()) -> Observable {
     addCallback(block)
     return self
   }
   
   // select returns an observed Observable where only values for which
   // the closure returns true are yielded.
-  public func select(block: (T!) -> (Bool)) -> Observable<T> {
+  public func select(block: (T!) -> (Bool)) -> Observable {
     let observable = Observable<T>()
     addCallback {
       if block($0) {
@@ -92,8 +106,9 @@ public class Observable<T> {
     return observable
   }
   
-  public func skip(var amount: Int) -> Observable<T> {
-    let observable = Observable<T>()
+  // skip ignores the first amount values in a stream.
+  public func skip(var amount: Int) -> Observable {
+    let observable = Observable()
     addCallback {
       if amount > 0 {
         --amount
@@ -102,5 +117,34 @@ public class Observable<T> {
       }
     }
     return observable
+  }
+  
+  // nonNil drops any observed elements which are nil.
+  public func nonNil() -> Observable {
+    return select { $0 != nil }
+  }
+}
+
+infix operator ~> {}
+
+public func ~><T>(observable: Observable<T>, inout value: T) {
+  observable.tap{ value = $0 }
+}
+
+func ~>(observable: Observable<String>, label: UILabel!) {
+  observable.tap {
+    if label == nil {
+      return
+    }
+    label.text = $0
+  }
+}
+
+func ~>(observable: Observable<UIImage>, view: UIImageView!) {
+  observable.tap {
+    if view == nil {
+      return
+    }
+    view.image = $0
   }
 }
