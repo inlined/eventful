@@ -134,4 +134,25 @@ class PromiseTests: XCTestCase {
     
     waitForExpectationsWithTimeout(5, handler: nil)
   }
+  
+  func testCancel() {
+    var didCancel = false
+    Promise(42).cancelled { () -> () in
+      didCancel = true
+    }
+    XCTAssertFalse(didCancel, "")
+    
+    var p = Promise<Int>()
+    p.then { val -> Void in
+      XCTFail("Should not call success when resolving after cancelling")
+    }.cancelled { didCancel = true }
+    p.cancel()
+    XCTAssertTrue(didCancel, "")
+    
+    p = Promise(42)
+    p.cancelled {
+      XCTFail("Should not call cancel after already resolving")
+    }
+    p.cancel()
+  }
 }
