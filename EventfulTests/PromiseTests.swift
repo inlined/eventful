@@ -12,7 +12,7 @@ import Eventful
 class PromiseTests: XCTestCase {
   func testResolveBeforeAttach() {
     let expectation = expectationWithDescription("resolve then attach")
-    Promise(42).then { (val) -> () in
+    Promise(42).then { val -> Void in
       XCTAssertEqual(val, 42, "")
       expectation.fulfill()
     }
@@ -22,7 +22,7 @@ class PromiseTests: XCTestCase {
   func testResolveAfterAttach() {
     let expectation = expectationWithDescription("resolve before attach")
     let p = Promise<Int>()
-    p.then { (val) -> () in
+    p.then { val -> Void in
       XCTAssertEqual(val, 42, "")
       expectation.fulfill()
     }
@@ -35,8 +35,8 @@ class PromiseTests: XCTestCase {
     let err = NSError()
     let p = Promise<Int>()
     p.fail(err)
-    p.error {
-      XCTAssertEqual(err, $0, "")
+    p.error { anError -> Void in
+      XCTAssertEqual(err, anError, "")
       expectation.fulfill()
     }
     
@@ -47,8 +47,8 @@ class PromiseTests: XCTestCase {
     let expectation = expectationWithDescription("error before attach")
     let err = NSError()
     let p = Promise<Int>()
-    p.error {
-      XCTAssertEqual(err, $0, "")
+    p.error { anError -> Void in
+      XCTAssertEqual(err, anError, "")
       expectation.fulfill()
     }
     p.fail(err)
@@ -58,9 +58,9 @@ class PromiseTests: XCTestCase {
   
   func testAlwaysResolved() {
     let expectation = expectationWithDescription("always resolved")
-    Promise(42).always { (val, err) in
-      XCTAssertNil(err, "")
-      XCTAssertEqual(val, 42, "")
+    Promise(42).always { promise in
+      XCTAssertNil(promise.err, "")
+      XCTAssertEqual(promise.val!, 42, "")
       expectation.fulfill()
     }
     
@@ -70,9 +70,9 @@ class PromiseTests: XCTestCase {
   func testAlwaysFailed() {
     let expectation = expectationWithDescription("always failed")
     let err = NSError()
-    Promise<Int>().always { (val, anErr) in
-      XCTAssertEqual(err, anErr!, "")
-      XCTAssertNil(val, "")
+    Promise<Int>().always { promise in
+      XCTAssertEqual(promise.err!, err, "")
+      XCTAssertNil(promise.val, "")
       expectation.fulfill()
     }.fail(err)
     
@@ -85,7 +85,7 @@ class PromiseTests: XCTestCase {
       return "\($0)"
     }.then {
       return $0.toInt() ?? 0
-    }.then { (val: Int!) -> () in
+    }.then { val -> () in
       XCTAssertEqual(42, val, "")
       expectation.fulfill()
     }
@@ -98,20 +98,21 @@ class PromiseTests: XCTestCase {
     var hitNestedAlways = false
     let p = Promise<Int>()
     let anErr = NSError()
-    p.then {
+    p.then { val -> String in
       XCTFail("Should bypass success handler")
-      return "\($0)"
-    }.then { (val: String!) ->Int in
+      return "\(val)"
+    }.then { val -> Int in
       XCTFail("Should bypass success handler")
       return val.toInt() ?? 0
-    }.always { (val, err) in
+    }.always { promise in
       hitNestedAlways = true
-      XCTAssertNil(val, "")
-      XCTAssertEqual(err!, anErr, "")
-    }.then { (val: Int!) -> Int in
+      XCTAssertNil(promise.val, "")
+      XCTAssertEqual(promise.err!, anErr, "")
+      return
+    }.then { val -> Int in
       XCTFail("Should bypass success handler")
       return 0
-    }.error { (err: NSError!) -> Void in
+    }.error { err -> Void in
       XCTAssertEqual(err, anErr, "")
       expectation.fulfill()
     }
@@ -123,10 +124,10 @@ class PromiseTests: XCTestCase {
   
   func testNestedSuccess() {
     let expectation = expectationWithDescription("nested promises")
-    Promise(42).then { (val: Int!) -> Promise<Int> in
+    Promise(42).then { val -> Promise<Int> in
       XCTAssertEqual(42, val, "")
       return Promise(1337)
-    }.then { (val: Int!) -> Void in
+    }.then { val -> Void in
       XCTAssertEqual(1337, val, "")
       expectation.fulfill()
     }
